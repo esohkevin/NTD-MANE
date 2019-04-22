@@ -15,7 +15,7 @@ informs us of which are potentially secretory proteins. It is important to have 
 information because secretory proteins would be better antigens/immuogens since they can be 
 readily accessed by the immue system.
 
-###Immune epitope prediction
+### Immune epitope prediction
 - **Linear B-cell epitope prediction** using [BepiPred](http://www.cbs.dtu.dk/services/BepiPred/), 
 [ABCpred](http://www.imtech.res.in/raghava/abcpred/), [SVMTriP](http://sysbio.unl.edu/SVMTriP/)
 , and [BCPreds](http://ailab.ist.psu.edu/bcpred/). The qualities of an ideal B-cell epitope are
@@ -40,7 +40,7 @@ affinity HTL epitopes.
  ribosomal protein. Here, you just put together your sequence. 
 There is no abstract technique in doing this. We essentially used MicroSoft PowerPoint for visualization.
 
-###Accessing the properties of the chimeric peptide
+### Accessing the properties of the chimeric peptide
 - **IFN-gamma inducing epitopes** using [IFNepitope server](http://crdd.osdd.net/raghava/ifnepitope/scan.php). 
 IFN-gamma is important in innate and adaptive immunity in that it stimulates macrophages an natural killer cells. 
 
