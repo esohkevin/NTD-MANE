@@ -26,4 +26,14 @@
 	mdrun
 	gmx grompp -f mdout.mdp -c 1AKI_solv_ions.gro -p topol.top -o em.tpr
 	gmx mdrun -v -deffnm em
-- 
+- Now we can perform some first pass analysis by looking at the effect of EM on our system:
+	gmx energy -f em.edr -o potential.xvg
+	The Etot (Total energy) should be negative indicating that the system is stable and
+	ready fo simulation. If positive. it means the system is unstable and one should
+	consider going through the process once more
+- Next we equilibrate the slvent and ions around the protein to prevent the system from
+	collapsing during unrestrained dynamics. Bring the solvent to temp at which simula
+	would be done. Equilibrate first at isothermal-isochoric (NVT cons # particles,
+	volume and temp) - make take some time to run!
+	gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
+	gmx mdrun -deffnm nvt
