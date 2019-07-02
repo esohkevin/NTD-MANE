@@ -3,7 +3,7 @@ Is a team of six from the University of Buea, Cameroon involved neglected tropic
 for vaccine development. We use immunoinformatics, proteomics, bioinformatics and immunological techniques 
 to predict and investigate potential vaccine and diagnostic candidates.
 
-## Immunoinformatics Guide
+## Immunoinformatics Guide (Pipeline used in our March 2019 pubplication)
 
 ### Selection and Retrieval of Proteins
 Proteins previously reported as antigen/immunogenic were retrieved from UniProt and subjected 
