@@ -100,3 +100,9 @@ Here are just some of the myriad of tools available in the field on in silico va
 You can substitute any of the tools to get a more desired outcome. 
 You can as well add more tools in any one step to increase the validity of the outcome.
 
+-------------------
+Some relevant online courses and materials related to this field of research
+----
+- Bioinformatics (DNA and Protein sequence Analysis, Statistical Analysis in Bioinfo): https://www.edx.org/micromasters/usmx-umuc-bioinformatics
+- MD Simulation related: https://www.edx.org/course/atoms-materials-predictive-theory-purduex-mse550x
+- 
