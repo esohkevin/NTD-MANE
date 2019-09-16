@@ -3,7 +3,7 @@ Is a team of young researchers primarily based at the University of Buea, Camero
 for vaccines and dignostic tools development. We use immunoinformatics, proteomics, bioinformatics and immunological techniques 
 to predict and investigate potential vaccine and diagnostic candidates.
 
-## Immunoinformatics Guide (Pipeline used in our March [2019 pubplication]() )
+## Immunoinformatics Guide (Pipeline used in our March [2019 pubplication](https://github.com/esohkevin/NTD-MANE/blob/master/ov-dkr.pdf))
 
 ### Selection and Retrieval of Proteins
 Proteins previously reported as antigen/immunogenic were retrieved from UniProt and subjected 
@@ -96,7 +96,7 @@ So you need to have some knowledge on the vaccination scheme.
 For example, how many injections are to be administered and the duration after each injection.
 
 ---
-Here are just some of the myriad of tools available in the field on in silico vaccine design. 
+Here are just a few of the myriad of tools available in the field of _in silico_ vaccine design. 
 You can substitute any of the tools to get a more desired outcome. 
 You can as well add more tools in any one step to increase the validity of the outcome.
 
@@ -106,3 +106,6 @@ Some relevant online courses and materials related to this field of research
 - Bioinformatics (DNA and Protein sequence Analysis, Statistical Analysis in Bioinfo): https://www.edx.org/micromasters/usmx-umuc-bioinformatics
 - MD Simulation related: https://www.edx.org/course/atoms-materials-predictive-theory-purduex-mse550x
 - Linux Fundamentals: https://1drv.ms/b/s!AoM4yKosJgwohSfRwfxia-sgIuOe
+- Basic Computer Science: https://www.edx.org/course/cs50s-introduction-computer-science-harvardx-cs50x
+- GROMACS MDS Tutorial: http://www.mdtutorials.com/gmx/
+- Future Learn Course: https://www.futurelearn.com/courses/bacterial-genomes-bioinformatics/3/register?return=99aom93q&utm_campaign=bacterial-genomes-bioinformatics-3&utm_content=GoToWeek_1&utm_medium=futurelearn_organic_email&utm_source=CRM_email&utm_term=CP_1_WTW_w1
