@@ -1,9 +1,9 @@
 # NTD-MANE
-Is a team of six from the University of Buea, Cameroon involved neglected tropical diseases (NTDs) research
-for vaccine development. We use immunoinformatics, proteomics, bioinformatics and immunological techniques 
+Is a team of young researchers primarily based at the University of Buea, Cameroon involved neglected tropical diseases (NTDs) research
+for vaccines and dignostic tools development. We use immunoinformatics, proteomics, bioinformatics and immunological techniques 
 to predict and investigate potential vaccine and diagnostic candidates.
 
-## Immunoinformatics Guide (Pipeline used in our March 2019 pubplication)
+## Immunoinformatics Guide (Pipeline used in our March [2019 pubplication]() )
 
 ### Selection and Retrieval of Proteins
 Proteins previously reported as antigen/immunogenic were retrieved from UniProt and subjected 
