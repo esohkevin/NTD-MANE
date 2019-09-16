@@ -1,4 +1,5 @@
-# Directives on saving TLR4 chain A and B
+Saving TLR4 chain A and B
+----
 - `pymol 4A8G.pdb`
 - `indicate c. A:B
 `
@@ -9,6 +10,8 @@
 	Not always adviceable to grep cos one may be interested 
 	in crystal water around active sites
 	
+MD Simulation
+----
 - Generate topology files with pdb2gmx: You'll be prompted to choose a force field
 	This is an important step. Make sure to read literature to understand what
 	force field is suitable for the study
