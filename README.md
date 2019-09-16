@@ -105,4 +105,4 @@ Some relevant online courses and materials related to this field of research
 ----
 - Bioinformatics (DNA and Protein sequence Analysis, Statistical Analysis in Bioinfo): https://www.edx.org/micromasters/usmx-umuc-bioinformatics
 - MD Simulation related: https://www.edx.org/course/atoms-materials-predictive-theory-purduex-mse550x
-- 
+- Linux Fundamentals: https://1drv.ms/b/s!AoM4yKosJgwohSfRwfxia-sgIuOe
