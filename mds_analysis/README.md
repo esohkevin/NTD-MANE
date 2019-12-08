@@ -57,3 +57,15 @@ MD Simulation
 	
 	`gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr`
 	`gmx mdrun -deffnm nvt`
+
+- See [script](https://github.com/esohkevin/NTD-MANE/blob/master/mds_analysis/script.sh) for rest of pipeline
+
+After Energy Minimization and Eguilibration
+----
+![gromacs_energies.png](https://github.com/esohkevin/NTD-MANE/blob/master/mds_analysis/grom_energies.png)
+
+After Production MD
+----
+![gromacs_analysis.png](https://github.com/esohkevin/NTD-MANE/blob/master/mds_analysis/grom_analysis.png)
+
+
