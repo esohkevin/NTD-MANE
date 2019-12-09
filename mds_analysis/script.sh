@@ -306,19 +306,19 @@ gmx genion -s ions.tpr -o $fsi -p topol.top -pname NA -nname CL -neutral
 
 # Energy minimization
 gmx grompp -f minim.mdp -c $fsi -p topol.top -o em.tpr
-time mpirun -np ${NP} -machinefile ${PBS_NODEFILE} ${mdr} -v -deffnm em #gmx mdrun
+time mpirun -np \${NP} -machinefile \${PBS_NODEFILE} \${mdr} -v -deffnm em #gmx mdrun
 gmx energy -f em.edr -o $Epe
 grep -v -e \"#\" -e \"@\" $Epe > $Epet
 
 # Equilibration Phase 1: NVT (Energy and Temperature)
 gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
-time mpirun -np ${NP} -machinefile ${PBS_NODEFILE} ${mdr} -v -deffnm nvt #gmx mdrun
+time mpirun -np \${NP} -machinefile \${PBS_NODEFILE} \${mdr} -v -deffnm nvt #gmx mdrun
 gmx energy -f nvt.edr -o $Et
 grep -v -e \"#\" -e \"@\" $Et > $Ett
 
 # Equilibration Phase 2: NPT (Pressure and Density)
 gmx grompp -f npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
-time mpirun -np ${NP} -machinefile ${PBS_NODEFILE} ${mdr} -v -deffnm npt #gmx mdrun
+time mpirun -np \${NP} -machinefile \${PBS_NODEFILE} \${mdr} -v -deffnm npt #gmx mdrun
 gmx energy -f npt.edr -o $Epr
 grep -v -e \"#\" -e \"@\" $Epr > $Eprt
 gmx energy -f npt.edr -o $Ed
@@ -326,7 +326,7 @@ grep -v -e \"#\" -e \"@\" $Ed > $Edt
 
 # Run Production MD
 #gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md_0_1.tpr
-#time mpirun -np ${NP} -machinefile ${PBS_NODEFILE} ${mdr} -v -deffnm md_0_1 #gmx mdrun
+#time mpirun -np \${NP} -machinefile \${PBS_NODEFILE} \${mdr} -v -deffnm md_0_1 #gmx mdrun
 
 # Analysis
 #gmx trjconv -s md_0_1.tpr -f md_0_1.xtc -o md_0_1_noPBC.xtc -pbc mol -center # enter 1 0 on prompt
