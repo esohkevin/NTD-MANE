@@ -339,6 +339,9 @@ grep -v -e \"#\" -e \"@\" $Ed > $Edt
 #gmx gyrate -s md_0_1.tpr -f md_0_1_noPBC.xtc -o gyrate.xvg # enter 1 on prompt
 #grep -v -e \"#\" -e \"@\" gyrate.xvg > gyrate.txt
 
+#gmx rama -f em.gro -s em.tpr -o ramachan.xvg # Ramachandran Plot for crystal struct
+
+
 # Generate plots
 Rscript /mnt/lustre/groups/CBBI1243/KEVIN/mds/plot.R $Epet $Ett $Eprt $Edt
 """

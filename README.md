@@ -109,3 +109,4 @@ Some relevant online courses and materials related to this field of research
 - Basic Computer Science: https://www.edx.org/course/cs50s-introduction-computer-science-harvardx-cs50x
 - GROMACS MDS Tutorial: http://www.mdtutorials.com/gmx/
 - Future Learn Course: https://www.futurelearn.com/courses/bacterial-genomes-bioinformatics/3/register?return=99aom93q&utm_campaign=bacterial-genomes-bioinformatics-3&utm_content=GoToWeek_1&utm_medium=futurelearn_organic_email&utm_source=CRM_email&utm_term=CP_1_WTW_w1
+
