@@ -3,7 +3,7 @@ Is a team of young researchers primarily based at the University of Buea, Camero
 for vaccines and dignostic tools development. We use immunoinformatics, proteomics, bioinformatics and immunological techniques 
 to predict and investigate potential vaccine and diagnostic candidates.
 
-## Immunoinformatics Guide (Pipeline used in our March [2019 pubplication](https://github.com/esohkevin/NTD-MANE/blob/master/ov-dkr.pdf))
+## Immunoinformatics Guide (Pipeline used in our March [2019 pubplication](https://www.nature.com/articles/s41598-019-40833-x)
 
 ### Selection and Retrieval of Proteins
 Proteins previously reported as antigen/immunogenic were retrieved from UniProt and subjected 
