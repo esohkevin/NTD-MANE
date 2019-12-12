@@ -246,18 +246,18 @@ gromMDS() {
       grep -v "HOH" $f > $fc
       
       # Create required files; topology, position restraint, post-processed structure
-      gmx pdb2gmx -f $fc -o $fp -water spce
+      echo 16 | gmx pdb2gmx -f $fc -o $fp -water spce 
       
       # Define unit cell & add solvent
       gmx editconf -f $fp -o $fn -c -d 1.0 -bt cubic
       gmx solvate -cp $fn -cs spc216.gro -o $fs -p topol.top
       gmx grompp -f ions.mdp -c $fs -p topol.top -o ions.tpr
-      gmx genion -s ions.tpr -o $fsi -p topol.top -pname NA -nname CL -neutral
+      echo 13 | gmx genion -s ions.tpr -o $fsi -p topol.top -pname NA -nname CL -neutral
       
       # Energy minimization
       gmx grompp -f minim.mdp -c $fsi -p topol.top -o em.tpr
       gmx mdrun -v -deffnm em
-      gmx energy -f em.edr -o $Epe
+      echo 10 | gmx energy -f em.edr -o $Epe
       grep -v -e "#" -e "@" $Epe > $Epet
       
       # Equilibration Phase 1: NVT (Energy and Temperature)
@@ -278,15 +278,18 @@ gromMDS() {
       gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md_0_1.tpr
       gmx mdrun -v -deffnm md_0_1
       
-      # Analysis
-      gmx trjconv -s md_0_1.tpr -f md_0_1.xtc -o md_0_1_noPBC.xtc -pbc mol -center # enter 1 0 on prompt
-      gmx rms -s md_0_1.tpr -f md_0_1_noPBC.xtc -o rmsd.xvg -tu ns # enter 4 4 on prompt
+      # Analysis (enter 1 0 on prompt)
+      echo 1 0 | gmx trjconv -s md_0_1.tpr -f md_0_1.xtc -o md_0_1_noPBC.xtc -pbc mol -center
+      # enter 4 4 on prompt
+      echo 4 4 | gmx rms -s md_0_1.tpr -f md_0_1_noPBC.xtc -o rmsd.xvg -tu ns
       grep -v -e "#" -e "@" rmsd.xvg > rmsd.txt
       
-      gmx rms -s em.tpr -f md_0_1_noPBC.xtc -o rmsd_xtal.xvg -tu ns # for crystal structure: 4 4 on prompt
+      # for crystal structure: 4 4 on prompt
+      echo 4 4 | gmx rms -s em.tpr -f md_0_1_noPBC.xtc -o rmsd_xtal.xvg -tu ns
       grep -v -e "#" -e "@" rmsd_xtal.xvg > rmsd_xtal.txt
       
-      gmx gyrate -s md_0_1.tpr -f md_0_1_noPBC.xtc -o gyrate.xvg # enter 1 on prompt
+      # enter 1 on prompt   
+      echo 1 | gmx gyrate -s md_0_1.tpr -f md_0_1_noPBC.xtc -o gyrate.xvg
       grep -v -e "#" -e "@" gyrate.xvg > gyrate.txt
       
       gmx rama -f em.gro -s em.tpr -o ramachan.xvg # Ramachandran Plot for crystal struct
@@ -332,18 +335,18 @@ cd /mnt/lustre/groups/CBBI1243/KEVIN/mds/
 grep -v \"HOH\" $f > $fc
 
 # Create required files; topology, position restraint, post-processed structure
-gmx pdb2gmx -f $fc -o $fp -water spce
+echo 16 | gmx pdb2gmx -f $fc -o $fp -water spce
 
 # Define unit cell & add solvent
 gmx editconf -f $fp -o $fn -c -d 1.0 -bt cubic
 gmx solvate -cp $fn -cs spc216.gro -o $fs -p topol.top
 gmx grompp -f ions.mdp -c $fs -p topol.top -o ions.tpr
-gmx genion -s ions.tpr -o $fsi -p topol.top -pname NA -nname CL -neutral
+echo 13 | gmx genion -s ions.tpr -o $fsi -p topol.top -pname NA -nname CL -neutral
 
 # Energy minimization
 gmx grompp -f minim.mdp -c $fsi -p topol.top -o em.tpr
 time mpirun -np \${NP} -machinefile \${PBS_NODEFILE} \${mdr} -v -deffnm em #gmx mdrun
-gmx energy -f em.edr -o $Epe
+echo 10 | gmx energy -f em.edr -o $Epe
 grep -v -e \"#\" -e \"@\" $Epe > $Epet
 
 # Equilibration Phase 1: NVT (Energy and Temperature)
@@ -365,14 +368,14 @@ gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md_0_1.tpr
 time mpirun -np \${NP} -machinefile \${PBS_NODEFILE} \${mdr} -v -deffnm md_0_1 #gmx mdrun
 
 # Analysis
-gmx trjconv -s md_0_1.tpr -f md_0_1.xtc -o md_0_1_noPBC.xtc -pbc mol -center # enter 1 0 on prompt
-gmx rms -s md_0_1.tpr -f md_0_1_noPBC.xtc -o rmsd.xvg -tu ns # enter 4 4 on prompt
+echo 1 0 | gmx trjconv -s md_0_1.tpr -f md_0_1.xtc -o md_0_1_noPBC.xtc -pbc mol -center
+echo 4 4 | gmx rms -s md_0_1.tpr -f md_0_1_noPBC.xtc -o rmsd.xvg -tu ns
 grep -v -e \"#\" -e \"@\" rmsd.xvg > rmsd.txt
 
-gmx rms -s em.tpr -f md_0_1_noPBC.xtc -o rmsd_xtal.xvg -tu ns # for crystal structure: 4 4 on prompt
+echo 4 4 | gmx rms -s em.tpr -f md_0_1_noPBC.xtc -o rmsd_xtal.xvg -tu ns
 grep -v -e \"#\" -e \"@\" rmsd_xtal.xvg > rmsd_xtal.txt
 
-gmx gyrate -s md_0_1.tpr -f md_0_1_noPBC.xtc -o gyrate.xvg # enter 1 on prompt
+echo 1 | gmx gyrate -s md_0_1.tpr -f md_0_1_noPBC.xtc -o gyrate.xvg
 grep -v -e \"#\" -e \"@\" gyrate.xvg > gyrate.txt
 
 gmx rama -f em.gro -s em.tpr -o ramachan.xvg # Ramachandran Plot for crystal struct
