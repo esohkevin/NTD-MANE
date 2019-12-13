@@ -246,7 +246,7 @@ gromMDS() {
       grep -v "HOH" $f > $fc
       
       # Create required files; topology, position restraint, post-processed structure
-      echo 16 | gmx pdb2gmx -f $fc -o $fp -water spce 
+      echo 15 | gmx pdb2gmx -f $fc -o $fp -water spce 
       
       # Define unit cell & add solvent
       gmx editconf -f $fp -o $fn -c -d 1.0 -bt cubic
@@ -257,21 +257,21 @@ gromMDS() {
       # Energy minimization
       gmx grompp -f minim.mdp -c $fsi -p topol.top -o em.tpr
       gmx mdrun -v -deffnm em
-      echo 10 | gmx energy -f em.edr -o $Epe
+      echo 10 0 | gmx energy -f em.edr -o $Epe
       grep -v -e "#" -e "@" $Epe > $Epet
       
       # Equilibration Phase 1: NVT (Energy and Temperature)
       gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
       gmx mdrun -v -deffnm nvt
-      gmx energy -f nvt.edr -o $Et
+      echo 16 0 | gmx energy -f nvt.edr -o $Et
       grep -v -e "#" -e "@" $Et > $Ett
       
       # Equilibration Phase 2: NPT (Pressure and Density)
       gmx grompp -f npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
       gmx mdrun -v -deffnm npt
-      gmx energy -f npt.edr -o $Epr
+      echo 18 0 | gmx energy -f npt.edr -o $Epr
       grep -v -e "#" -e "@" $Epr > $Eprt
-      gmx energy -f npt.edr -o $Ed
+      echo 24 0 | gmx energy -f npt.edr -o $Ed
       grep -v -e "#" -e "@" $Ed > $Edt
 
       # Run Production MD
@@ -302,8 +302,8 @@ gromMDS() {
       qsub_gen() {
       echo -e """
 #!/bin/bash
-#PBS -l select=10:ncpus=24:mpiprocs=24
-#PBS -l walltime=96:00:00
+#PBS -l select=1:ncpus=24:mpiprocs=8
+#PBS -l walltime=24:00:00
 #PBS -q smp
 #PBS -m abe
 #PBS -P CBBI1243
@@ -321,9 +321,9 @@ module add chpc/BIOMODULES
 module load gromacs/5.1.4-openmpi_1.10.2-intel16.0.1
 module load R/3.6.0-gcc7.2.0
 
-OMP_NUM_THREADS=1
+#OMP_NUM_THREADS=1
 
-NP=\`cat \${PBS_NODEFILE} | wc -l\`
+#NP=\`cat \${PBS_NODEFILE} | wc -l\`
 
 mdr=\"gmx_mpi mdrun\"
 #ARGS=\"-s X -deffnm Y\"
@@ -335,50 +335,50 @@ cd /mnt/lustre/groups/CBBI1243/KEVIN/mds/
 grep -v \"HOH\" $f > $fc
 
 # Create required files; topology, position restraint, post-processed structure
-echo 16 | gmx pdb2gmx -f $fc -o $fp -water spce
+echo 16 | gmx_mpi pdb2gmx -f $fc -o $fp -water spce
 
 # Define unit cell & add solvent
-gmx editconf -f $fp -o $fn -c -d 1.0 -bt cubic
-gmx solvate -cp $fn -cs spc216.gro -o $fs -p topol.top
-gmx grompp -f ions.mdp -c $fs -p topol.top -o ions.tpr
-echo 13 | gmx genion -s ions.tpr -o $fsi -p topol.top -pname NA -nname CL -neutral
+gmx_mpi editconf -f $fp -o $fn -c -d 1.0 -bt cubic
+gmx_mpi solvate -cp $fn -cs spc216.gro -o $fs -p topol.top
+gmx_mpi grompp -f ions.mdp -c $fs -p topol.top -o ions.tpr
+echo 13 | gmx_mpi genion -s ions.tpr -o $fsi -p topol.top -pname NA -nname CL -neutral
 
 # Energy minimization
-gmx grompp -f minim.mdp -c $fsi -p topol.top -o em.tpr
-time mpirun -np \${NP} -machinefile \${PBS_NODEFILE} \${mdr} -v -deffnm em #gmx mdrun
-echo 10 | gmx energy -f em.edr -o $Epe
+gmx_mpi grompp -f minim.mdp -c $fsi -p topol.top -o em.tpr
+time \${mdr} -v -deffnm em #gmx mdrun
+echo 10 | gmx_mpi energy -f em.edr -o $Epe
 grep -v -e \"#\" -e \"@\" $Epe > $Epet
 
 # Equilibration Phase 1: NVT (Energy and Temperature)
-gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
-time mpirun -np \${NP} -machinefile \${PBS_NODEFILE} \${mdr} -v -deffnm nvt #gmx mdrun
-gmx energy -f nvt.edr -o $Et
+gmx_mpi grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
+time \${mdr} -v -deffnm nvt #gmx mdrun
+gmx_mpi energy -f nvt.edr -o $Et
 grep -v -e \"#\" -e \"@\" $Et > $Ett
 
 # Equilibration Phase 2: NPT (Pressure and Density)
-gmx grompp -f npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
-time mpirun -np \${NP} -machinefile \${PBS_NODEFILE} \${mdr} -v -deffnm npt #gmx mdrun
-gmx energy -f npt.edr -o $Epr
+gmx_mpi grompp -f npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
+time \${mdr} -v -deffnm npt #gmx mdrun
+gmx_mpi energy -f npt.edr -o $Epr
 grep -v -e \"#\" -e \"@\" $Epr > $Eprt
-gmx energy -f npt.edr -o $Ed
+gmx_mpi energy -f npt.edr -o $Ed
 grep -v -e \"#\" -e \"@\" $Ed > $Edt
 
 # Run Production MD
-gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md_0_1.tpr
-time mpirun -np \${NP} -machinefile \${PBS_NODEFILE} \${mdr} -v -deffnm md_0_1 #gmx mdrun
+gmx_mpi grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md_0_1.tpr
+time \${mdr} -v -deffnm md_0_1 #gmx mdrun
 
 # Analysis
-echo 1 0 | gmx trjconv -s md_0_1.tpr -f md_0_1.xtc -o md_0_1_noPBC.xtc -pbc mol -center
-echo 4 4 | gmx rms -s md_0_1.tpr -f md_0_1_noPBC.xtc -o rmsd.xvg -tu ns
+echo 1 0 | gmx_mpi trjconv -s md_0_1.tpr -f md_0_1.xtc -o md_0_1_noPBC.xtc -pbc mol -center
+echo 4 4 | gmx_mpi rms -s md_0_1.tpr -f md_0_1_noPBC.xtc -o rmsd.xvg -tu ns
 grep -v -e \"#\" -e \"@\" rmsd.xvg > rmsd.txt
 
-echo 4 4 | gmx rms -s em.tpr -f md_0_1_noPBC.xtc -o rmsd_xtal.xvg -tu ns
+echo 4 4 | gmx_mpi rms -s em.tpr -f md_0_1_noPBC.xtc -o rmsd_xtal.xvg -tu ns
 grep -v -e \"#\" -e \"@\" rmsd_xtal.xvg > rmsd_xtal.txt
 
-echo 1 | gmx gyrate -s md_0_1.tpr -f md_0_1_noPBC.xtc -o gyrate.xvg
+echo 1 | gmx_mpi gyrate -s md_0_1.tpr -f md_0_1_noPBC.xtc -o gyrate.xvg
 grep -v -e \"#\" -e \"@\" gyrate.xvg > gyrate.txt
 
-gmx rama -f em.gro -s em.tpr -o ramachan.xvg # Ramachandran Plot for crystal struct
+gmx_mpi rama -f em.gro -s em.tpr -o ramachan.xvg # Ramachandran Plot for crystal struct
 
 
 # Generate plots
