@@ -302,16 +302,15 @@ gromMDS() {
       qsub_gen() {
       echo -e """
 #!/bin/bash
-#PBS -l select=1:ncpus=24:mpiprocs=8
+#PBS -l select=1:ncpus=24
 #PBS -l walltime=24:00:00
 #PBS -q smp
-#PBS -m abe
 #PBS -P CBBI1243
 #PBS -o /mnt/lustre/groups/CBBI1243/KEVIN/mds/stdout.txt
 #PBS -e /mnt/lustre/groups/CBBI1243/KEVIN/mds/stderr.txt
+#PBS -m b
 #PBS -N Gromacs_$fb
 #PBS -M kevin.esoh@students.jkuat.ac.ke
-#PBS -mb
 
 #MODULEPATH=/opt/gridware/bioinformatics/modules:\$MODULEPATH
 #source /etc/profile.d/modules.sh
@@ -321,7 +320,7 @@ module add chpc/BIOMODULES
 module load gromacs/5.1.4-openmpi_1.10.2-intel16.0.1
 module load R/3.6.0-gcc7.2.0
 
-#OMP_NUM_THREADS=1
+OMP_NUM_THREADS=1 #turn off OpenMP (also -ntomp on commandline)
 
 #NP=\`cat \${PBS_NODEFILE} | wc -l\`
 
@@ -335,7 +334,7 @@ cd /mnt/lustre/groups/CBBI1243/KEVIN/mds/
 grep -v \"HOH\" $f > $fc
 
 # Create required files; topology, position restraint, post-processed structure
-echo 16 | gmx_mpi pdb2gmx -f $fc -o $fp -water spce
+echo 15 | gmx_mpi pdb2gmx -f $fc -o $fp -water spce
 
 # Define unit cell & add solvent
 gmx_mpi editconf -f $fp -o $fn -c -d 1.0 -bt cubic
@@ -346,21 +345,21 @@ echo 13 | gmx_mpi genion -s ions.tpr -o $fsi -p topol.top -pname NA -nname CL -n
 # Energy minimization
 gmx_mpi grompp -f minim.mdp -c $fsi -p topol.top -o em.tpr
 time \${mdr} -v -deffnm em #gmx mdrun
-echo 10 | gmx_mpi energy -f em.edr -o $Epe
+echo 10 0 | gmx_mpi energy -f em.edr -o $Epe
 grep -v -e \"#\" -e \"@\" $Epe > $Epet
 
 # Equilibration Phase 1: NVT (Energy and Temperature)
 gmx_mpi grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
 time \${mdr} -v -deffnm nvt #gmx mdrun
-gmx_mpi energy -f nvt.edr -o $Et
+echo 16 0 | gmx_mpi energy -f nvt.edr -o $Et
 grep -v -e \"#\" -e \"@\" $Et > $Ett
 
 # Equilibration Phase 2: NPT (Pressure and Density)
 gmx_mpi grompp -f npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
 time \${mdr} -v -deffnm npt #gmx mdrun
-gmx_mpi energy -f npt.edr -o $Epr
+echo 18 0 | gmx_mpi energy -f npt.edr -o $Epr
 grep -v -e \"#\" -e \"@\" $Epr > $Eprt
-gmx_mpi energy -f npt.edr -o $Ed
+echo 24 0 | gmx_mpi energy -f npt.edr -o $Ed
 grep -v -e \"#\" -e \"@\" $Ed > $Edt
 
 # Run Production MD
@@ -378,7 +377,7 @@ grep -v -e \"#\" -e \"@\" rmsd_xtal.xvg > rmsd_xtal.txt
 echo 1 | gmx_mpi gyrate -s md_0_1.tpr -f md_0_1_noPBC.xtc -o gyrate.xvg
 grep -v -e \"#\" -e \"@\" gyrate.xvg > gyrate.txt
 
-gmx_mpi rama -f em.gro -s em.tpr -o ramachan.xvg # Ramachandran Plot for crystal struct
+#gmx_mpi rama -f em.gro -s em.tpr -o ramachan.xvg # Ramachandran Plot for crystal struct
 
 
 # Generate plots
