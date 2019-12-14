@@ -14,7 +14,10 @@ engy_plot <- function(pe=potential_file,
 		     te=temperature_file,
 		     pr=pressure_file,
 		     de=density_file) {
-   
+
+   in_base <- gsub(".txt","",pe)
+   enerPlotOut <- paste0("grom","_energies.png")
+
    e <- read.table(pe, h=F)
    colnames(e) <- c("Time_ps","Energy_kjmol_1")
    
@@ -30,31 +33,31 @@ engy_plot <- function(pe=potential_file,
    colnames(d) <- c("Time_ps","den")
    #d$den_10ps <- (d$den)/10
 
-   png("grom_energies.png", height=10, width=10, units = "in", points=10, res=200)
+   png(enerPlotOut, height=10, width=10, units = "in", points=10, res=200)
    par(mfrow=c(2,2))
       plot(e$Time_ps, e$Energy_kjmol_1, type="l", 
-           main="Potential Energy: 1AKI, NVT Equilibration", 
+           main=paste0("Potential Energy: ",""," NVT Equilibration"), 
            xlab="Time (ps)", 
            ylab="Potential Energy (kJ/mol)",
            col="red")
       #dev.off()
       
       plot(t$Time_ps, t$K, type="l", 
-           main="Temperature: 1AKI, NVT Equilibration", 
+           main=paste0("Temperature: ",""," NVT Equilibration"), 
            xlab="Time (ps)", 
            ylab="Temperature (K)",
            col = "black")
       abline(h=t_avg, lty=2)
       
       plot(p$Time_ps, p$bar, type="l",
-           main="Pressure: 1AKI, NPT Equilibration",
+           main=paste0("Pressure: ",""," NPT Equilibration"),
            xlab="Time (ps)",
            ylab="Pressure (bar)",
            col="black")
       #lines(p$Time_ps, p$bar_10ps, col="red")
       
       plot(d$Time_ps, d$den, type="l",
-           main="Density: 1AKI, NPT Equilibration",
+           main=paste0("Density: ",""," NPT Equilibration"),
            xlab="Time (ps)",
            ylab="Density (kg/m^3)",
            col="black")
@@ -83,7 +86,7 @@ ansis_plot <- function(rmsda=first_rmsd_file,
    gb$t_ns <- gb$time/1000
 
 
-   png("grom_analysis.png", height=6, width=3, units = "in", points=10, res=100)
+   png("grom_analysis.png", height=7, width=5, units = "in", points=10, res=100)
    par(mfrow=c(2,1))
       plot(ra$time, ra$rmsd, 
            main="RMSD",

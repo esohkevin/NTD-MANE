@@ -257,21 +257,21 @@ gromMDS() {
       # Energy minimization
       gmx grompp -f minim.mdp -c $fsi -p topol.top -o em.tpr
       gmx mdrun -v -deffnm em
-      echo 10 0 | gmx energy -f em.edr -o $Epe
+      echo -e "Potential\n0" | gmx energy -f em.edr -o $Epe
       grep -v -e "#" -e "@" $Epe > $Epet
       
       # Equilibration Phase 1: NVT (Energy and Temperature)
       gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
       gmx mdrun -v -deffnm nvt
-      echo 16 0 | gmx energy -f nvt.edr -o $Et
+      echo -e "Temperature\n0" | gmx energy -f nvt.edr -o $Et
       grep -v -e "#" -e "@" $Et > $Ett
       
       # Equilibration Phase 2: NPT (Pressure and Density)
       gmx grompp -f npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
       gmx mdrun -v -deffnm npt
-      echo 18 0 | gmx energy -f npt.edr -o $Epr
+      echo -e "Pressure\n0" | gmx energy -f npt.edr -o $Epr
       grep -v -e "#" -e "@" $Epr > $Eprt
-      echo 24 0 | gmx energy -f npt.edr -o $Ed
+      echo -e "Density\n0" | gmx energy -f npt.edr -o $Ed
       grep -v -e "#" -e "@" $Ed > $Edt
 
       # Run Production MD
@@ -296,7 +296,7 @@ gromMDS() {
       
       
       # Generate plots
-      Rscript /mnt/lustre/groups/CBBI1243/KEVIN/mds/plot.R $Epet $Ett $Eprt $Edt
+      Rscript /mnt/lustre/groups/CBBI1243/KEVIN/mds/plot.R $Epet $Ett $Eprt $Edt rmsd.txt rmsd_xtal.txt gyrate.txt gyrate.txt
       
    elif [[ $# == 2 && $res == "hpc" && $fe == "pdb" ]]; then 
       qsub_gen() {
@@ -345,21 +345,21 @@ echo 13 | gmx_mpi genion -s ions.tpr -o $fsi -p topol.top -pname NA -nname CL -n
 # Energy minimization
 gmx_mpi grompp -f minim.mdp -c $fsi -p topol.top -o em.tpr
 time \${mdr} -v -deffnm em #gmx mdrun
-echo 10 0 | gmx_mpi energy -f em.edr -o $Epe
+echo -e \"Potential\\n0\" | gmx_mpi energy -f em.edr -o $Epe
 grep -v -e \"#\" -e \"@\" $Epe > $Epet
 
 # Equilibration Phase 1: NVT (Energy and Temperature)
 gmx_mpi grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
 time \${mdr} -v -deffnm nvt #gmx mdrun
-echo 16 0 | gmx_mpi energy -f nvt.edr -o $Et
+echo -e \"Temperature\\n0\" | gmx_mpi energy -f nvt.edr -o $Et
 grep -v -e \"#\" -e \"@\" $Et > $Ett
 
 # Equilibration Phase 2: NPT (Pressure and Density)
 gmx_mpi grompp -f npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
 time \${mdr} -v -deffnm npt #gmx mdrun
-echo 18 0 | gmx_mpi energy -f npt.edr -o $Epr
+echo -e \"Pressure\\n0\" | gmx_mpi energy -f npt.edr -o $Epr
 grep -v -e \"#\" -e \"@\" $Epr > $Eprt
-echo 24 0 | gmx_mpi energy -f npt.edr -o $Ed
+echo -e \"Density\\n0\" | gmx_mpi energy -f npt.edr -o $Ed
 grep -v -e \"#\" -e \"@\" $Ed > $Edt
 
 # Run Production MD
@@ -381,7 +381,7 @@ grep -v -e \"#\" -e \"@\" gyrate.xvg > gyrate.txt
 
 
 # Generate plots
-Rscript /mnt/lustre/groups/CBBI1243/KEVIN/mds/plot.R $Epet $Ett $Eprt $Edt
+Rscript /mnt/lustre/groups/CBBI1243/KEVIN/mds/plot.R $Epet $Ett $Eprt $Edt rmsd.txt rmsd_xtal.txt gyrate.txt gyrate.txt
       """
       }
       qsub_gen > $fb.qsub
