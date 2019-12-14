@@ -34,6 +34,7 @@ MD Simulation
 	minimizations in MD. One can search for templates for specific projects
 	
 	`gmx grompp -f ions.mdp -c 1AKI_solv.gro -p topol.top -o ions.tpr`
+
 	`gmx genion -s ions.tpr -o 1AKI_solv_ions.gro -p topol.top -pname NA -nname CL -neutral`
 	
 - Now we perform energy minimization on the solvated electroneutral system in order to
@@ -41,6 +42,7 @@ MD Simulation
 	mdrun
 	
 	`gmx grompp -f mdout.mdp -c 1AKI_solv_ions.gro -p topol.top -o em.tpr`
+
 	`gmx mdrun -v -deffnm em`
 	
 - Now we can perform some first pass analysis by looking at the effect of EM on our system:
@@ -56,6 +58,7 @@ MD Simulation
 	volume and temp) - make take some time to run!
 	
 	`gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr`
+
 	`gmx mdrun -deffnm nvt`
 
 - See [script](https://github.com/esohkevin/NTD-MANE/blob/master/mds_analysis/script.sh) for rest of pipeline
