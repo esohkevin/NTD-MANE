@@ -86,7 +86,7 @@ ansis_plot <- function(rmsda=first_rmsd_file,
    gb$t_ns <- gb$time/1000
 
 
-   png("grom_analysis.png", height=7, width=5, units = "in", points=10, res=100)
+   png("grom_analysis.png", height=8, width=5, units = "in", points=10, res=200)
    par(mfrow=c(2,1))
       plot(ra$time, ra$rmsd, 
            main="RMSD",

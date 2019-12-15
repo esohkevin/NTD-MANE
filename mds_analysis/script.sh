@@ -28,7 +28,7 @@ gromMDS() {
    Epr="${f/.pdb/_pressure.xvg}"; Eprt="${Epr/.xvg/.txt}" # press out files
    Ed="${f/.pdb/_density.xvg}"; Edt="${Ed/.xvg/.txt}" # density out files
    cpt="$fb.cpt" # checkpoint file
-   
+   wd="$(pwd)/"
    # Functions for generating parameter files
    writeIonMdp() {
    	echo """
@@ -170,7 +170,7 @@ gromMDS() {
    title                   = OPLS $fb NPT equilibration
    ; Run parameters
    integrator              = md        ; leap-frog integrator
-   nsteps                  = 500000    ; 2 * 500000 = 1000 ps (1 ns)
+   nsteps                  = 50000000    ; 2 * 50000000 = 100000 ps (100 ns)
    dt                      = 0.002     ; 2 fs
    ; Output control
    nstxout                 = 0         ; suppress bulky .trr file by specifying
@@ -231,7 +231,7 @@ gromMDS() {
       Usage: gromMDS <[hpc | nohpc]> <pdb-file>
       """
    elif [[ $# == 2 && $fe != "pdb" ]]; then
-      echo "The input file is not a PDB file! Your file must end with .pdb"
+      echo -e "\nThe input file is not a PDB file! Your file must end with .pdb\n"
    
    elif [[ $# == 2 && $res == "nohpc" && $fe == "pdb" ]]; then
    
@@ -256,19 +256,19 @@ gromMDS() {
       
       # Energy minimization
       gmx grompp -f minim.mdp -c $fsi -p topol.top -o em.tpr
-      gmx mdrun -v -deffnm em
+      mpirun -np 10 gmx mdrun -v -deffnm em
       echo -e "Potential\n0" | gmx energy -f em.edr -o $Epe
       grep -v -e "#" -e "@" $Epe > $Epet
       
       # Equilibration Phase 1: NVT (Energy and Temperature)
       gmx grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
-      gmx mdrun -v -deffnm nvt
+      mpirun -np 10 gmx mdrun -v -deffnm nvt
       echo -e "Temperature\n0" | gmx energy -f nvt.edr -o $Et
       grep -v -e "#" -e "@" $Et > $Ett
       
       # Equilibration Phase 2: NPT (Pressure and Density)
       gmx grompp -f npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
-      gmx mdrun -v -deffnm npt
+      mpirun -np 10 gmx mdrun -v -deffnm npt
       echo -e "Pressure\n0" | gmx energy -f npt.edr -o $Epr
       grep -v -e "#" -e "@" $Epr > $Eprt
       echo -e "Density\n0" | gmx energy -f npt.edr -o $Ed
@@ -276,7 +276,7 @@ gromMDS() {
 
       # Run Production MD
       gmx grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md_0_1.tpr
-      gmx mdrun -v -deffnm md_0_1
+      mpirun -np 10 gmx mdrun -v -deffnm md_0_1
       
       # Analysis (enter 1 0 on prompt)
       echo 1 0 | gmx trjconv -s md_0_1.tpr -f md_0_1.xtc -o md_0_1_noPBC.xtc -pbc mol -center
@@ -302,12 +302,12 @@ gromMDS() {
       qsub_gen() {
       echo -e """
 #!/bin/bash
-#PBS -l select=1:ncpus=24
-#PBS -l walltime=24:00:00
+#PBS -l select=1:ncpus=24:mpiprocs=24
+#PBS -l walltime=96:00:00
 #PBS -q smp
 #PBS -P CBBI1243
-#PBS -o /mnt/lustre/groups/CBBI1243/KEVIN/mds/stdout.txt
-#PBS -e /mnt/lustre/groups/CBBI1243/KEVIN/mds/stderr.txt
+#PBS -o ${wd}stdout.txt
+#PBS -e ${wd}stderr.txt
 #PBS -m b
 #PBS -N Gromacs_$fb
 #PBS -M kevin.esoh@students.jkuat.ac.ke
@@ -320,14 +320,18 @@ module add chpc/BIOMODULES
 module load gromacs/5.1.4-openmpi_1.10.2-intel16.0.1
 module load R/3.6.0-gcc7.2.0
 
-OMP_NUM_THREADS=1 #turn off OpenMP (also -ntomp on commandline)
+#OMP_NUM_THREADS=1 #turn off OpenMP (also -ntomp on commandline)
 
-#NP=\`cat \${PBS_NODEFILE} | wc -l\`
+#-nt -ntmpi number of threads and number of mpi threads
+
+NP=\`cat \${PBS_NODEFILE} | wc -l\`
+#NP=24
+echo \"Number of Processes: \$NP\"
 
 mdr=\"gmx_mpi mdrun\"
 #ARGS=\"-s X -deffnm Y\"
 
-cd /mnt/lustre/groups/CBBI1243/KEVIN/mds/
+cd ${wd}
 #mpirun -np \${NP} -machinefile \${PBS_NODEFILE} \${mdr} \${ARGS}
 
 # Remove water molecules (crystal)
@@ -344,27 +348,27 @@ echo 13 | gmx_mpi genion -s ions.tpr -o $fsi -p topol.top -pname NA -nname CL -n
 
 # Energy minimization
 gmx_mpi grompp -f minim.mdp -c $fsi -p topol.top -o em.tpr
-time \${mdr} -v -deffnm em #gmx mdrun
-echo -e \"Potential\\n0\" | gmx_mpi energy -f em.edr -o $Epe
+time \${mdr} -v -cpi -maxh 72 -ntomp \${NP} -deffnm em #gmx mdrun
+echo -e \"Potential\\\n0\" | gmx_mpi energy -f em.edr -o $Epe
 grep -v -e \"#\" -e \"@\" $Epe > $Epet
 
 # Equilibration Phase 1: NVT (Energy and Temperature)
 gmx_mpi grompp -f nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
-time \${mdr} -v -deffnm nvt #gmx mdrun
-echo -e \"Temperature\\n0\" | gmx_mpi energy -f nvt.edr -o $Et
+time \${mdr} -v -maxh 72 -ntomp \${NP} -deffnm nvt #gmx mdrun
+echo -e \"Temperature\\\n0\" | gmx_mpi energy -f nvt.edr -o $Et
 grep -v -e \"#\" -e \"@\" $Et > $Ett
 
 # Equilibration Phase 2: NPT (Pressure and Density)
 gmx_mpi grompp -f npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
-time \${mdr} -v -deffnm npt #gmx mdrun
-echo -e \"Pressure\\n0\" | gmx_mpi energy -f npt.edr -o $Epr
+time \${mdr} -v -maxh 72 -ntomp \${NP} -deffnm npt #gmx mdrun
+echo -e \"Pressure\\\n0\" | gmx_mpi energy -f npt.edr -o $Epr
 grep -v -e \"#\" -e \"@\" $Epr > $Eprt
-echo -e \"Density\\n0\" | gmx_mpi energy -f npt.edr -o $Ed
+echo -e \"Density\\\n0\" | gmx_mpi energy -f npt.edr -o $Ed
 grep -v -e \"#\" -e \"@\" $Ed > $Edt
 
 # Run Production MD
 gmx_mpi grompp -f md.mdp -c npt.gro -t npt.cpt -p topol.top -o md_0_1.tpr
-time \${mdr} -v -deffnm md_0_1 #gmx mdrun
+time \${mdr} -v -maxh 72 -ntomp \${NP} -deffnm md_0_1 #gmx mdrun
 
 # Analysis
 echo 1 0 | gmx_mpi trjconv -s md_0_1.tpr -f md_0_1.xtc -o md_0_1_noPBC.xtc -pbc mol -center
@@ -386,6 +390,8 @@ Rscript /mnt/lustre/groups/CBBI1243/KEVIN/mds/plot.R $Epet $Ett $Eprt $Edt rmsd.
       }
       qsub_gen > $fb.qsub
       sleep 1
-      echo -e "\n Gromacs job created! Please submit with 'qsub $fb.qsub'\n"
+      echo -e "\nMolecular Dynamics Parameter (mdp) files created in your current directory!"
+      sleep 1
+      echo -e "Gromacs job created! Please submit with 'qsub $fb.qsub'\n"
    fi
 }
